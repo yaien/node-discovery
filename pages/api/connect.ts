@@ -4,7 +4,7 @@ import p2p from "../../p2p/bootstrap";
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method != "POST") return;
   try {
-    const signature = req.headers["X-Signature"] as string;
+    const signature = req.headers["x-signature"] as string;
     p2p.register(signature, req.body);
     res.send(p2p.state());
   } catch (err) {

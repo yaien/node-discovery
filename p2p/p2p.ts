@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 import EventEmitter from "events";
 import axios from "axios";
-import md5 from "md5";
+import sha256 from "sha256";
 
 export interface Client {
   id: string;
@@ -58,7 +58,7 @@ export class P2P extends EventEmitter {
   }
 
   private validate(signature: string, client: Client) {
-    const hash = md5(JSON.stringify(client) + this.key);
+    const hash = sha256(client.id + client.name + client.addr + this.key);
     if (hash !== signature) throw new Error("Invalid signature");
   }
 
@@ -69,7 +69,7 @@ export class P2P extends EventEmitter {
 
   private async discover(addr: string) {
     try {
-      const signature = md5(JSON.stringify(this.current) + this.key);
+      const signature = sha256(this.current.id + this.current.name + this.current.addr + this.key);
       const headers = { "X-Signature": signature };
       const res = await axios.post<State>(addr + "/api/connect", this.current, { headers });
       const clients = [res.data.current, ...res.data.clients];
