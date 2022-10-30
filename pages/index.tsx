@@ -5,6 +5,7 @@ import cs from "classnames";
 import styles from "../styles/index.module.css";
 import p2p from "../p2p/bootstrap";
 import moment from "moment";
+import axios from "axios";
 
 const Since: FC<{ date: string }> = ({ date }) => {
   const [display, setDisplay] = useState("");
@@ -22,9 +23,12 @@ const Home: NextPage<{ state: State }> = (props) => {
   const [state, setState] = useState<State>(props.state);
 
   useEffect(() => {
-    const es = new EventSource("/api/sse");
-    es.addEventListener("message", (ev) => setState(JSON.parse(ev.data)));
-    return () => es.close();
+    const interval = setInterval(async () => {
+      const res = await axios.get("/api/state");
+      setState(res.data);
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

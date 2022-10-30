@@ -48,6 +48,7 @@ export class P2P extends EventEmitter {
   }
 
   start() {
+    console.log("started");
     setInterval(() => this.scan(), 5000);
   }
 
