@@ -48,7 +48,11 @@ const Home: NextPage<{ state: State }> = (props) => {
           <li className={cs("list-group-item d-flex justify-content-between align-items-center", { "text-bg-dark": dark })}>
             <div className="ms-2 me-auto">
               <div className="fw-bold">{state.current.name}</div>
-              <div className="fs-6">{state.current.addr}</div>
+              <div className="fs-6">
+                <a href={state.current.addr} target="_blank">
+                  {state.current.addr}
+                </a>
+              </div>
               <div className="fs-6 text-muted">
                 <Since date={state.current.updatedAt} />
               </div>
@@ -59,7 +63,11 @@ const Home: NextPage<{ state: State }> = (props) => {
             <li key={client.id} className={cs("list-group-item", { "text-bg-dark": dark })}>
               <div className="ms-2 me-auto">
                 <div className="fw-bold">{client.name}</div>
-                <div className="fs-6">{client.addr}</div>
+                <div className="fs-6">
+                  <a href={client.addr} target="_blank">
+                    {client.addr}
+                  </a>
+                </div>
                 <div className="fs-6 text-muted">
                   <Since date={client.updatedAt} />
                 </div>
