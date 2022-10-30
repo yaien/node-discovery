@@ -6,6 +6,7 @@ import styles from "../styles/index.module.css";
 import p2p from "../p2p/bootstrap";
 import moment from "moment";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 const Since: FC<{ date: string }> = ({ date }) => {
   const [display, setDisplay] = useState("");
@@ -23,12 +24,10 @@ const Home: NextPage<{ state: State }> = (props) => {
   const [state, setState] = useState<State>(props.state);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const res = await axios.get("/api/state");
-      setState(res.data);
-    }, 5000);
-
-    return () => clearInterval(interval);
+    fetch("/api/socket").then(() => {
+      const socket = io();
+      socket.on("state", (state) => setState(state));
+    });
   }, []);
 
   useEffect(() => {
