@@ -49,7 +49,7 @@ const Home: NextPage<{ state: State }> = (props) => {
             <div className="ms-2 me-auto">
               <div className="fw-bold">{state.current.name}</div>
               <div className="fs-6">
-                <a href={state.current.addr} target="_blank">
+                <a href={state.current.addr} target="_blank" rel="noreferrer">
                   {state.current.addr}
                 </a>
               </div>
@@ -64,7 +64,7 @@ const Home: NextPage<{ state: State }> = (props) => {
               <div className="ms-2 me-auto">
                 <div className="fw-bold">{client.name}</div>
                 <div className="fs-6">
-                  <a href={client.addr} target="_blank">
+                  <a href={client.addr} target="_blank" rel="noreferrer">
                     {client.addr}
                   </a>
                 </div>
