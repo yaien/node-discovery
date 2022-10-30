@@ -53,8 +53,7 @@ export class P2P extends EventEmitter {
 
   register(signature: string, client: Client) {
     this.validate(signature, client);
-    this.save(client);
-    this.emit("state", this.state());
+    this.discover(client.addr);
   }
 
   private validate(signature: string, client: Client) {
