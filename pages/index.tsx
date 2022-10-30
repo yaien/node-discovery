@@ -12,7 +12,7 @@ const Since: FC<{ date: string }> = ({ date }) => {
   useEffect(() => {
     const interval = setInterval(() => setDisplay(moment(date).fromNow()), 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [date]);
 
   return <>{display}</>;
 };
@@ -52,7 +52,7 @@ const Home: NextPage<{ state: State }> = (props) => {
             <span className="badge bg-primary rounded-pill">current</span>
           </li>
           {state.clients.map((client) => (
-            <li className={cs("list-group-item", { "text-bg-dark": dark })}>
+            <li key={client.id} className={cs("list-group-item", { "text-bg-dark": dark })}>
               <div className="ms-2 me-auto">
                 <div className="fw-bold">{client.name}</div>
                 <div className="fs-6">{client.addr}</div>
