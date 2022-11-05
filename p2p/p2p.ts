@@ -9,6 +9,7 @@ export interface Client {
   addr: string;
   createdAt: string;
   updatedAt: string;
+  refreshedAt: Date;
 }
 
 export interface State {
@@ -21,16 +22,19 @@ export interface Config {
   addr: string;
   key: string;
   lookup?: string;
+  scan?: boolean;
 }
 
-export class P2P extends EventEmitter {
+export class P2P {
+  private scaneable?: boolean;
   private current: Client;
   private clients: Map<string, Client>;
   private key: string;
   private lookup?: string;
+  private emmiter = new EventEmitter();
 
   constructor(config: Config) {
-    super();
+    this.scaneable = config.scan;
     this.key = config.key;
     this.lookup = config.lookup;
     this.clients = new Map();
@@ -40,15 +44,19 @@ export class P2P extends EventEmitter {
       addr: config.addr,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      refreshedAt: new Date(),
     };
   }
 
-  state(): State {
+  get state(): State {
     return { current: this.current, clients: Array.from(this.clients.values()) };
   }
 
-  start() {
-    setInterval(() => this.scan(), 5000);
+  subscribe(cb: (state: State) => void) {
+    this.emmiter.on("state", cb);
+    return () => {
+      this.emmiter.off("state", cb);
+    };
   }
 
   register(signature: string, client: Client) {
@@ -56,14 +64,40 @@ export class P2P extends EventEmitter {
     this.save(client);
   }
 
+  start() {
+    const callback = this.scaneable ? this.scan : this.check;
+    setInterval(callback.bind(this), 5000);
+  }
+
+  private save(client: Client) {
+    if (client.addr == this.current.addr) return;
+    client.refreshedAt = new Date();
+    this.clients.set(client.addr, client);
+  }
+
   private validate(signature: string, client: Client) {
     const hash = sha256(client.id + client.name + client.addr + this.key);
     if (hash !== signature) throw new Error("Invalid signature");
   }
 
-  private save(client: Client) {
-    if (client.addr == this.current.addr) return;
-    this.clients.set(client.addr, client);
+  private check() {
+    const now = new Date();
+    for (const client of this.clients.values()) {
+      const minutes = now.getMinutes() - client.refreshedAt.getMinutes();
+      if (minutes >= 5) {
+        this.clients.delete(client.addr);
+        this.emmiter.emit("state", this.state);
+      }
+    }
+  }
+
+  private async scan() {
+    if (!this.clients.size && this.lookup) {
+      return this.discover(this.lookup);
+    }
+    for (const addr of this.clients.keys()) {
+      await this.discover(addr);
+    }
   }
 
   private async discover(addr: string) {
@@ -78,16 +112,7 @@ export class P2P extends EventEmitter {
       console.log("disconnected peer", addr, err);
       this.clients.delete(addr);
     } finally {
-      this.emit("state", this.state());
-    }
-  }
-
-  private async scan() {
-    if (!this.clients.size && this.lookup) {
-      return this.discover(this.lookup);
-    }
-    for (const addr of this.clients.keys()) {
-      await this.discover(addr);
+      this.emmiter.emit("state", this.state);
     }
   }
 }

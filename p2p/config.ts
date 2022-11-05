@@ -3,4 +3,5 @@ export default {
   name: process.env.P2P_NAME as string,
   key: process.env.P2P_KEY as string,
   lookup: process.env.P2P_LOOKUP_ADDR as string,
+  scan: process.env.P2P_SCAN == "true",
 };
