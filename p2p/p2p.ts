@@ -2,6 +2,7 @@ import { v4 as uuid } from "uuid";
 import EventEmitter from "events";
 import axios from "axios";
 import sha256 from "sha256";
+import winston from "winston";
 
 export interface Client {
   id: string;
@@ -73,7 +74,8 @@ export class P2P extends EventEmitter {
       const res = await axios.post<State>(addr + "/api/connect", this.current, { headers });
       const clients = [res.data.current, ...res.data.clients];
       clients.forEach((client) => this.save(client));
-    } catch {
+    } catch (err) {
+      winston.info("disconnected peer", err);
       this.clients.delete(addr);
     } finally {
       this.emit("state", this.state());
