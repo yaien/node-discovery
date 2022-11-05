@@ -9,7 +9,7 @@ export interface Client {
   addr: string;
   createdAt: string;
   updatedAt: string;
-  refreshedAt: Date;
+  refreshed: number;
 }
 
 export interface State {
@@ -44,7 +44,7 @@ export class P2P {
       addr: config.addr,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      refreshedAt: new Date(),
+      refreshed: Date.now(),
     };
   }
 
@@ -71,7 +71,7 @@ export class P2P {
 
   private save(client: Client) {
     if (client.addr == this.current.addr) return;
-    client.refreshedAt = new Date();
+    client.refreshed = Date.now();
     this.clients.set(client.addr, client);
   }
 
@@ -81,9 +81,9 @@ export class P2P {
   }
 
   private check() {
-    const now = new Date();
+    const now = Date.now();
     for (const client of this.clients.values()) {
-      const minutes = now.getMinutes() - client.refreshedAt.getMinutes();
+      const minutes = (now - client.refreshed) / 1000 / 60;
       if (minutes >= 5) {
         this.clients.delete(client.addr);
         this.emmiter.emit("state", this.state);
