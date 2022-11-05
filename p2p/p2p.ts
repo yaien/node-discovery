@@ -74,8 +74,9 @@ export class P2P extends EventEmitter {
       const res = await axios.post<State>(addr + "/api/connect", this.current, { headers });
       const clients = [res.data.current, ...res.data.clients];
       clients.forEach((client) => this.save(client));
+      winston.info("connected peer", addr);
     } catch (err) {
-      winston.info("disconnected peer", err);
+      winston.info("disconnected peer", addr, err);
       this.clients.delete(addr);
     } finally {
       this.emit("state", this.state());
