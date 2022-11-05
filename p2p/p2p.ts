@@ -66,7 +66,7 @@ export class P2P {
 
   start() {
     const callback = this.scaneable ? this.scan : this.check;
-    setInterval(callback.bind(this), 5000);
+    setInterval(callback.bind(this), 10000);
   }
 
   private save(client: Client) {
